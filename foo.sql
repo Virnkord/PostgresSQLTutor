@@ -78,8 +78,8 @@ INSERT INTO listofphones VALUES('Pit', '555-67-12', '+79214704747', '88122003040
 
 ----
   --Convenient resource view
-SELECT jsonb_pretty(resource) from condition
-
+--SELECT jsonb_pretty(resource) from condition
+SELECT jsonb_pretty(resource) from patient
 ----
     --Amount of hits with a particular disease
     select c.resource#>>'{code,text}' AS disease, count(*) as num
@@ -102,4 +102,28 @@ SELECT jsonb_pretty(resource) from condition
           order by num desc) as con
           on con.patient_id = p.id and con.num > 4
           --order by list desc
+----
+--Sort by age
+select resource#>>'{name,0,given,0}' as first_name,(date_part('year', CURRENT_DATE) - date_part('year', TO_DATE(resource#>>'{birthDate}','YYYY-MM-DD'))) as Age
+from patient
+order by Age desc
+limit 30
+
+----
+-- Amount of patients in age from 1 to 17
+SELECT (date_part('year', CURRENT_DATE) - date_part('year', TO_DATE(resource#>>'{birthDate}','YYYY-MM-DD'))) as Age ,count(*)
+from patient
+where date_part('year', CURRENT_DATE) - date_part('year', TO_DATE(resource#>>'{birthDate}', 'YYYY-MM-DD'))<18
+group by Age
+order by age desc
+
+----
+
+SELECT (date_part('year', CURRENT_DATE) - date_part('year', TO_DATE(resource#>>'{birthDate}','YYYY-MM-DD'))) as Age ,count(*)
+from patient
+where date_part('year', CURRENT_DATE) - date_part('year', TO_DATE(resource#>>'{birthDate}', 'YYYY-MM-DD'))<18
+group by Age
+order by age desc
+
+
 ----
